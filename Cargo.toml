@@ -1,0 +1,13 @@
+[package]
+name = "cfg-shield"
+version = "0.1.0"
+edition = "2021"
+description = "Feature flag semantic drift detector for Rust crates"
+
+[[bin]]
+name = "cfg-shield"
+path = "src/main.rs"
+
+[dependencies]
+toml = "0.8"
+serde = { version = "1", features = ["derive"] }
