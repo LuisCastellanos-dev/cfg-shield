@@ -162,6 +162,18 @@ The paper documenting the COBOL case:
 [Source Transformation Integrity in Legacy COBOL Systems](https://zenodo.org/records/21973424)
 DOI: 10.5281/zenodo.21974261
 
+## Known Limitations
+
+**Test count as evidence proxy:** CFG-R01 uses test count differential (cargo test vs cargo test --features) as the primary evidence of semantic divergence. This proxy fails when a project distributes tests uniformly across features — equal test counts with different semantics would be classified as PROBABLE instead of CONFIRMADO. Output differential analysis is required as secondary evidence in those cases.
+
+**Feature name dependency:** Classification of CONFIRMADO/PROBABLE assumes feature flag names follow recognizable security conventions (e.g., `strict`, `verify`, `auth`). A security-relevant flag with a non-descriptive name (e.g., `legacy`, `compat`, `v1`) may not be classified correctly without manual review of the gated code block.
+
+**Cargo monoculture:** All Rust rules assume a `Cargo.toml`-structured project with `cargo test` as the test runner. Projects using custom build systems, build.rs scripts that conditionally enable features, or workspace-level feature resolution may produce false negatives.
+
+**C sanitizer requirement:** Level 2 and Level 3 C divergence (security semantics, bug observability) requires integration with ASan/UBSan to produce observable evidence. Without sanitizers, undefined behavior introduced by a conditional `#ifdef` may not manifest in output — divergence exists but is not observable by the tool alone.
+
+**Single validated instance per language:** COBOL divergence validated on GnuCOBOL 3.1.2 only. Rust divergence validated against generic-ecies. C divergence validated against FreeBSD if_ovpn.c/if_wg.c. Each represents one confirmed instance — generalization to other projects is INFERENCIA until tested.
+
 ---
 
 *Luis F. Castellanos — Vector Telemetry Research (VTR)*
