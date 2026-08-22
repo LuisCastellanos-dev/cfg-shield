@@ -155,6 +155,33 @@ appropriate to that experiment. The laboratory architecture provides
 separation of roles, state preservation, and mechanisms that support
 reproducibility. It does not guarantee reproducibility in the abstract.
 
+
+## Laboratory Observation: Package Context Divergence on Parrot OS
+
+**Date:** 2026-08-21
+**Classification:** OBSERVADO
+
+During integration of Parrot OS into the laboratory Tailscale overlay network,
+the official Tailscale installation script (install.sh) automatically
+detected the host as debian bullseye and configured the package source
+accordingly:
+
+    Installing Tailscale for debian bullseye, using method apt
+    deb [signed-by=/usr/share/keyrings/tailscale-archive-keyring.gpg] https://pkgs.tailscale.com/stable/debian bullseye main
+
+The actual host is Parrot OS Echo, whose base is Debian 13 (trixie), not
+bullseye (Debian 11). The installation completed without error and the
+resulting binary (1.102.3) is functional.
+
+This is classified OBSERVADO: the divergence between declared and actual
+package context is observable and reproducible, but no security-relevant
+behavioral difference between the bullseye and trixie package variants has
+been demonstrated.
+
+**Reference:** Tailscale 1.102.3 installed on Parrot OS Echo (Debian 13 base)
+via tailscale.com/install.sh, 2026-08-21.
+Upstream issue: github.com/tailscale/tailscale/issues/20960
+
 ## Research Connection
 
 This laboratory provides the practical infrastructure for the research
