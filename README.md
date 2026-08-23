@@ -32,4 +32,4 @@ of evidence, not severity of impact.
 - FreeBSD commit rGa841961da752 merged into base system
 - IBM Bank-of-Z Issue #205 -- systemic timestamp defect identified and reported upstream
 - SCaLE 24x submission: Same Source, Different Program: Compilation Context as a Security Variable -- pending November 2026
-- Preprint: DOI 10.5281/zenodo.22063208 -- https://doi.org/10.5281/zenodo.22063208
+- Preprint: DOI 10.5281/zenodo.22063208 -- https://doi.org/10.5281/zenodo.22063208 (v2.0.0, 2026-08-23)
