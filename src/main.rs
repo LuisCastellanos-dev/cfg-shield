@@ -221,6 +221,17 @@ fn count_tests(crate_path: &Path, features: Option<&[String]>) -> Result<usize, 
     let output = cmd.output()
         .map_err(|e| format!("cargo test failed: {e}"))?;
 
+    if !output.status.success() {
+
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        // Distinguish compilation failure from 0 tests executed.
+        // count_tests previously returned Ok(0) for both cases —
+        // indistinguishable and causes false CONFIRMADO classification.
+        // VS-009: detected in audit session 2026-09-04.
+        return Err(format!("cargo test failed (exit {:?}): {}",
+            output.status.code(), stderr.lines().take(3).collect::<Vec<_>>().join(" | ")));
+    }
+
     let stdout = String::from_utf8_lossy(&output.stdout);
     let stderr = String::from_utf8_lossy(&output.stderr);
     let combined = format!("{stdout}{stderr}");
@@ -284,12 +295,24 @@ fn scan(crate_path: &Path) -> Vec<Finding> {
     // Step 2: Test count differential
     println!("\n  Running test count differential...");
     println!("  [1/2] cargo test --no-default-features");
-    let default_count = count_tests(crate_path, None).unwrap_or(0);
+    let default_count = match count_tests(crate_path, None) {
+        Ok(n) => n,
+        Err(e) => {
+            println!("  [WARN] Default build failed — compilation error, not 0 tests: {}", e);
+            return findings;
+        }
+    };
     println!("        → {} tests executed", default_count);
 
     for feature in &crate_info.non_default_features {
         println!("  [2/N] cargo test --features {}", feature);
-        let feat_count = count_tests(crate_path, Some(&[feature.clone()])).unwrap_or(0);
+        let feat_count = match count_tests(crate_path, Some(&[feature.clone()])) {
+            Ok(n) => n,
+            Err(e) => {
+                println!("  [WARN] Feature build failed for '{}': {}", feature, e);
+                continue;
+            }
+        };
         println!("        → {} tests executed", feat_count);
 
         if feat_count > default_count {
